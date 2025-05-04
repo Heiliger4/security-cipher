@@ -4,6 +4,11 @@
     <div class="results">
         <h2>{{ action|capitalize }}ion Results</h2>
         
+        <div class="cipher-info">
+            <p><strong>Substitution Cipher:</strong> {{ substitution_name }}</p>
+            <p><strong>Transposition Cipher:</strong> {{ transposition_name }}</p>
+        </div>
+        
         <div class="result-box">
             <h3>Original Text:</h3>
             <p>{{ original_text }}</p>
