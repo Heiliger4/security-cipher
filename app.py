@@ -1,83 +1,85 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
+from ciphers import simple_caesar_cipher, simple_substitution_cipher, xor_cipher, reverse_text, columnar_transposition, rail_fence_cipher
 
 app = Flask(__name__)
 
-SUBSTITUTION_CIPHERS = {
-    'caesar': 'Caesar Cipher',
-    'reverse': 'Reverse Alphabet Cipher',
-    'modular': 'Modular Arithmetic Cipher'
+# Define the available ciphers
+substitution = {
+    "caesar": "Caesar Cipher",
+    "substitution": "Substitution Cipher",
+    "xor": "XOR Cipher"
 }
 
-TRANSPOSITION_CIPHERS = {
-    'rail_fence': 'Rail Fence Cipher',
-    'columnar': 'Columnar Transposition',
-    'route': 'Route Cipher'
+transposition = {
+    "reverse_text": "Reverse Text",
+    "columnar": "Columnar Transposition",
+    "rail_fence": "Rail Fence Cipher"
 }
 
-def caesar_cipher(text, shift, encrypt=True):
-    result = []
-    for char in text:
-        if char.isalpha():
-            base = 65 if char.isupper() else 97
-            offset = shift if encrypt else -shift
-            result.append(chr((ord(char) - base + offset) % 26 + base))
-        else:
-            result.append(char)
-    return ''.join(result)
-
-def reverse_cipher(text):
-    result = []
-    for char in text:
-        if char.isalpha():
-            base = 65 if char.isupper() else 97
-            result.append(chr(155 - ord(char)) if char.isupper() else chr(219 - ord(char)))
-        else:
-            result.append(char)
-    return ''.join(result)
-
-def modular_cipher(text, encrypt=True):
-    result = []
-    for idx, char in enumerate(text):
-        if char.isalpha():
-            base = 65 if char.isupper() else 97
-            shift = idx + 1 if encrypt else -(idx + 1)
-            result.append(chr((ord(char) - base + shift) % 26 + base))
-        else:
-            result.append(char)
-    return ''.join(result)
-
-@app.route('/')
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template('index.html', 
-                         substitution_ciphers=SUBSTITUTION_CIPHERS,
-                         transposition_ciphers=TRANSPOSITION_CIPHERS)
+    return render_template("index.html", substitution=substitution, transposition=transposition)
 
-@app.route('/process', methods=['POST'])
+@app.route("/process", methods=["POST"])
 def process():
-    action = request.form.get('action')
-    text = request.form.get('text')
-    substitution = request.form.get('substitution')
-    transposition = request.form.get('transposition')
-    key1 = request.form.get('key1', '')
+    text = request.form["text"]
+    action = request.form["action"]
+    substitution_method = request.form["substitution"]
+    transposition_method = request.form["transposition"]
+    key1 = request.form.get("key1", "")  # Substitution key
+    key2 = request.form.get("key2", "")  # Transposition key
 
-    try:
-        key1 = int(key1) if key1 else 3
-    except ValueError:
-        key1 = 3
+    # Encrypt or decrypt based on action
+    if action == "encrypt":
+        processed_text = encrypt(text, substitution_method, transposition_method, key1, key2)
+    else:
+        processed_text = decrypt(text, substitution_method, transposition_method, key1, key2)
 
-    processed_text = text
+    # Render the result page with original and processed text
+    return render_template(
+        "result.html", 
+        action=action, 
+        original_text=text, 
+        processed_text=processed_text
+    )
 
-    if substitution == 'caesar':
-        processed_text = caesar_cipher(text, key1, encrypt=(action == 'encrypt'))
-    elif substitution == 'reverse':
-        processed_text = reverse_cipher(text)
-    elif substitution == 'modular':
-        processed_text = modular_cipher(text, encrypt=(action == 'encrypt'))
+def encrypt(text, substitution_method, transposition_method, key1, key2):
+    # Apply substitution cipher
+    if substitution_method == "caesar" and key1:
+        text = simple_caesar_cipher(text, int(key1))
+    elif substitution_method == "substitution":
+        text = simple_substitution_cipher(text, key1)
+    elif substitution_method == "xor" and key1:
+        text = xor_cipher(text, int(key1))
 
-    return render_template('result.html', 
-                         original_text=text,
-                         processed_text=processed_text,
-                         action=action)
+    # Apply transposition cipher
+    if transposition_method == "reverse_text":
+        text = reverse_text(text)
+    elif transposition_method == "columnar" and key2:
+        text = columnar_transposition(text, int(key2))
+    elif transposition_method == "rail_fence" and key2:
+        text = rail_fence_cipher(text, int(key2))
 
-if __name__ == '__main__':
+    return text
+
+def decrypt(text, substitution_method, transposition_method, key1, key2):
+    # Apply reverse transposition cipher
+    if transposition_method == "reverse_text":
+        text = reverse_text(text)
+    elif transposition_method == "columnar" and key2:
+        text = columnar_transposition(text, int(key2), encrypt=False)
+    elif transposition_method == "rail_fence" and key2:
+        text = rail_fence_cipher(text, int(key2), encrypt=False)
+
+    # Apply reverse substitution cipher
+    if substitution_method == "caesar" and key1:
+        text = simple_caesar_cipher(text, int(key1), encrypt=False)
+    elif substitution_method == "substitution":
+        text = simple_substitution_cipher(text, key1, encrypt=False)
+    elif substitution_method == "xor" and key1:
+        text = xor_cipher(text, int(key1))
+
+    return text
+
+if __name__ == "__main__":
     app.run(debug=True)
