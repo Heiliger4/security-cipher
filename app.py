@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request # type: ignore
 from ciphers import (
     simple_caesar_cipher, 
     simple_substitution_cipher, 
