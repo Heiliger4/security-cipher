@@ -1,84 +1,56 @@
-# transposition.py
-
 def reverse_text(text):
     return text[::-1]
 
-def columnar_transposition(text, key, encrypt=True):
-    key = int(key)
-    if key <= 0:
-        return text
-        
+def simple_transposition(text, key, encrypt=True):
+    # Ensure that the key is at least 1
+    if key < 1:
+        raise ValueError("Key must be greater than 0")
+    
+    result = []
+    length = len(text)
+
     if encrypt:
-        # Pad the text if needed
-        padding = (-len(text)) % key
-        if padding:
-            text += ' ' * padding
-            
-        num_columns = key
-        num_rows = (len(text) + num_columns - 1) // num_columns
-        
-        # Write by rows, read by columns
-        grid = [text[i*num_columns:(i+1)*num_columns] for i in range(num_rows)]
-        encrypted = ''.join([''.join([grid[row][col] for row in range(num_rows)]) 
-                          for col in range(num_columns)])
-        return encrypted
+        # Encryption: Rearrange the characters in chunks of size 'key'
+        for i in range(0, length, key):
+            result.append(text[i:i + key][::-1])  # Reverse the characters in the chunk
+        return ''.join(result)
     else:
-        num_columns = key
-        num_rows = (len(text) + num_columns - 1) // num_columns
-        
-        # Reconstruct the grid
-        grid = []
-        for row in range(num_rows):
-            start = row * num_columns
-            end = (row + 1) * num_columns
-            grid.append(text[start:end])
-            
-        # Read by rows
-        decrypted = ''.join([''.join([grid[row][col] for col in range(num_columns)]) 
-                          for row in range(num_rows)])
-        return decrypted.strip()
+        # Decryption: Reverse the encryption logic, reversing each chunk again
+        # We need to ensure we correctly reconstruct the original order
+        result = []
+        for i in range(0, length, key):
+            result.append(text[i:i + key][::-1])  # Reverse each chunk back
+        return ''.join(result)
 
 def rail_fence_cipher(text, key, encrypt=True):
-    key = int(key)
-    if key <= 1:
+    if key == 1:
         return text
-        
     if encrypt:
-        rails = [[] for _ in range(key)]
-        rail = 0
-        direction = 1
-        
+        fence = [''] * key
+        row = 0
+        going_down = False
+
         for char in text:
-            rails[rail].append(char)
-            rail += direction
-            if rail == 0 or rail == key - 1:
-                direction *= -1
-                
-        return ''.join([''.join(rail) for rail in rails])
+            fence[row] += char
+            if row == 0 or row == key - 1:
+                going_down = not going_down
+            row += 1 if going_down else -1
+        return ''.join(fence)
     else:
-        # Calculate the pattern
-        pattern = []
-        rail = 0
-        direction = 1
-        for _ in range(len(text)):
-            pattern.append(rail)
-            rail += direction
-            if rail == 0 or rail == key - 1:
-                direction *= -1
-                
-        # Reconstruct rails
-        rail_lengths = [pattern.count(i) for i in range(key)]
-        rails = []
-        pos = 0
-        for length in rail_lengths:
-            rails.append(text[pos:pos+length])
-            pos += length
-            
-        # Read following the pattern
-        result = []
-        rail_positions = [0] * key
-        for rail_num in pattern:
-            result.append(rails[rail_num][rail_positions[rail_num]])
-            rail_positions[rail_num] += 1
-            
+        fence = [''] * key
+        row = 0
+        going_down = False
+        index = 0
+        for i in range(len(text)):
+            fence[row] += text[i]
+            if row == 0 or row == key - 1:
+                going_down = not going_down
+            row += 1 if going_down else -1
+
+        result = [''] * len(text)
+        current_pos = 0
+        for i in range(key):
+            for char in fence[i]:
+                result[current_pos] = char
+                current_pos += 1
         return ''.join(result)
