@@ -10,18 +10,17 @@ def simple_caesar_cipher(text, shift, encrypt=True):
     return ''.join(result)
 
 def atbash_cipher(text, _=None, encrypt=True):
-    # Atbash cipher doesn't use a key (ignored parameter)
+    """Simplest possible substitution cipher (A↔Z, B↔Y, etc.)"""
     result = []
     for char in text:
-        if char.isalpha():
-            if char.isupper():
-                new_char = chr(90 - (ord(char) - 65))
-            else:
-                new_char = chr(122 - (ord(char) - 97))
-            result.append(new_char)
+        if char.isupper():
+            result.append(chr(90 - (ord(char) - 65)))
+        elif char.islower():
+            result.append(chr(122 - (ord(char) - 97)))
         else:
             result.append(char)
     return ''.join(result)
 
 def xor_cipher(text, key):
+    """Simple XOR cipher (no changes needed)"""
     return ''.join(chr(ord(c) ^ key) for c in text)
