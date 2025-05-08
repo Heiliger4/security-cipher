@@ -1,27 +1,31 @@
-def reverse_text(text):
-    """Ultra-simple reversal"""
+def reverse_text(text, _=None, encrypt=True):
     return text[::-1]
 
 def simple_transposition(text, key, encrypt=True):
-    """Columnar transposition (simplest practical transposition)"""
     if key < 1:
-        key = 1  # Default to 1 if invalid
+        key = 1
     
     if encrypt:
-        # Pad text if needed
+        # Pad with spaces if needed (preserve length)
         pad_length = (key - len(text) % key) % key
         padded = text + (' ' * pad_length)
-        # Write in rows, read by columns
         return ''.join(padded[i::key] for i in range(key))
     else:
         # Calculate original rows
-        rows = (len(text) + key - 1) // key
+        rows = -(-len(text) // key)  # Ceiling division
         # Rebuild by reading columns
-        return ''.join(text[i::rows] for i in range(rows)).strip()
+        return ''.join(text[i::rows] for i in range(rows)).rstrip()
 
 def columnar_transposition(text, key, encrypt=True):
-    """Even simpler version (single method for both operations)"""
+    if key < 1:
+        key = 1
+    
     if not encrypt:
+        # For decryption, swap rows and columns
         rows = -(-len(text) // key)  # Ceiling division
         return columnar_transposition(text, rows, True)
-    return ''.join(text[i::key] for i in range(key))
+    
+    # Pad with spaces if needed
+    pad_length = (key - len(text) % key) % key
+    padded = text + (' ' * pad_length)
+    return ''.join(padded[i::key] for i in range(key))

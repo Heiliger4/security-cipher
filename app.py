@@ -12,14 +12,14 @@ app = Flask(__name__)
 
 substitution_ciphers = {
     "caesar": "Caesar Cipher",
-    "atbash": "Atbash Cipher",  # Replaced substitution
+    "atbash": "Atbash Cipher",
     "xor": "XOR Cipher"
 }
 
 transposition_ciphers = {
     "reverse_text": "Reverse Text",
     "simple_transposition": "Simple Transposition",
-    "columnar": "Columnar Transposition"  # Replaced rail fence
+    "columnar": "Columnar Transposition"
 }
 
 @app.route("/", methods=["GET", "POST"])
@@ -42,21 +42,41 @@ def process():
     processed_text = text
     
     try:
-        # Substitution ciphers
-        if sub_method == "caesar":
-            processed_text = simple_caesar_cipher(processed_text, int(key1 or 3), action == "encrypt")
-        elif sub_method == "atbash":
-            processed_text = atbash_cipher(processed_text)
-        elif sub_method == "xor":
-            processed_text = xor_cipher(processed_text, int(key1 or 42))
+        # Always apply substitution first when encrypting
+        if action == "encrypt":
+            # Substitution phase
+            if sub_method == "caesar":
+                processed_text = simple_caesar_cipher(processed_text, int(key1 or 3), True)
+            elif sub_method == "atbash":
+                processed_text = atbash_cipher(processed_text)
+            elif sub_method == "xor":
+                processed_text = xor_cipher(processed_text, int(key1 or 42))
 
-        # Transposition ciphers
-        if trans_method == "reverse_text":
-            processed_text = reverse_text(processed_text)
-        elif trans_method == "simple_transposition":
-            processed_text = simple_transposition(processed_text, int(key2 or 3), action == "encrypt")
-        elif trans_method == "columnar":
-            processed_text = columnar_transposition(processed_text, int(key2 or 3), action == "encrypt")
+            # Transposition phase
+            if trans_method == "reverse_text":
+                processed_text = reverse_text(processed_text)
+            elif trans_method == "simple_transposition":
+                processed_text = simple_transposition(processed_text, int(key2 or 3), True)
+            elif trans_method == "columnar":
+                processed_text = columnar_transposition(processed_text, int(key2 or 3), True)
+
+        # Reverse order when decrypting
+        else:
+            # Transposition phase first
+            if trans_method == "reverse_text":
+                processed_text = reverse_text(processed_text)
+            elif trans_method == "simple_transposition":
+                processed_text = simple_transposition(processed_text, int(key2 or 3), False)
+            elif trans_method == "columnar":
+                processed_text = columnar_transposition(processed_text, int(key2 or 3), False)
+
+            # Then substitution
+            if sub_method == "caesar":
+                processed_text = simple_caesar_cipher(processed_text, int(key1 or 3), False)
+            elif sub_method == "atbash":  # Atbash is self-reversible
+                processed_text = atbash_cipher(processed_text)
+            elif sub_method == "xor":
+                processed_text = xor_cipher(processed_text, int(key1 or 42))
 
     except Exception as e:
         processed_text = f"Error: {str(e)}"
