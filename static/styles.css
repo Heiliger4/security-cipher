@@ -2,15 +2,17 @@ body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    background: #eef1f5;
+    background: #38bdf8;
     color: #333;
 }
 
 header {
-    background: #35424a;
-    color: #ffffff;
+    background: #0f172a;
+    color: #38bdf8;
     padding: 20px 0;
     text-align: center;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
 }
 
 main {
@@ -20,10 +22,11 @@ main {
 }
 
 .cipher-form {
-    background: #ffffff;
+    background: #1e293b;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    color: #e2e8f0;
     padding: 20px;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin: 40px;
 }
 
@@ -95,9 +98,13 @@ button:hover, .btn:hover {
 }
 
 .result-box {
-    background: #f7f7f7;
+    background: #1e293b;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    color: #e2e8f0;
+
+    /* background: #f7f7f7; */
     padding: 1rem;
-    border-left: 4px solid #1f2937;
+    border-left: 4px solid #00ff15;
     margin-bottom: 1rem;
     border-radius: 4px;
 }
@@ -115,6 +122,8 @@ footer {
     position: relative;
     bottom: 0;
     width: 100%;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
 }
 
 
@@ -153,4 +162,95 @@ footer {
     flex-direction: row;
     gap: 20px; /* Adjust space between Encrypt and Decrypt */
     align-items: center;
+}
+/* ...existing code... */
+
+/* Media Query for Mobile Devices */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    header {
+        padding: 15px 0;
+        font-size: 1.2rem;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    .cipher-form {
+        margin: 20px 0;
+        padding: 15px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group {
+        flex: none;
+    }
+
+    input[type="text"],
+    textarea {
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    button, .btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .results {
+        padding: 15px;
+    }
+
+    .result-box {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    footer {
+        font-size: 0.9rem;
+        padding: 15px;
+    }
+
+    .radio-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .action-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Media Query for Extra Small Devices */
+@media (max-width: 480px) {
+    header {
+        font-size: 1rem;
+    }
+
+    .cipher-form {
+        padding: 10px;
+    }
+
+    button, .btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .result-box h3 {
+        font-size: 1rem;
+    }
+
+    footer {
+        font-size: 1rem;
+        padding:10px 5px;
+    }
 }
